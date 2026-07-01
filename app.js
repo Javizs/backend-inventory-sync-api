@@ -1,16 +1,12 @@
 //Implementación de express
-const express = require("express");
+import express from 'express';
 const app = express();
 app.use(express.json());
+import routes from './routes/products.routes.js'
 
 //Estado de salud de la api 
 
-app.get("/api/health",(req,res) =>{
-    res.json({
-        status:"ok",
-        mensaje: "Backend en funcionamiento"
-    });
-});
+app.use("/",routes);
 
 
 //Comprobación de estado de servidor 
