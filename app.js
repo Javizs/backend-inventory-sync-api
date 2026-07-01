@@ -6,7 +6,7 @@ import routes from './routes/products.routes.js'
 
 //Estado de salud de la api 
 
-app.use("/",routes);
+app.use("/api/products",routes);
 
 
 //Comprobación de estado de servidor 

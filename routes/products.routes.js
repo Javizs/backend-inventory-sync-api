@@ -4,6 +4,6 @@ import {getMessageControl} from '../controllers/products.controller.js';
 
 const routes = express.Router();
 
-routes.get("/api/productos", getMessageControl);
+routes.get("/external", getMessageControl);
 
 export default routes;
