@@ -1,9 +1,9 @@
-//Gestión de la petición
-import {getMessageServices} from '../services/products.services.js';
+import {getExternalProducts} from '../services/products.services.js';
 
-export const getMessageControl = (req,res) =>{
-   
-   const data = getMessageServices();
-   
-    res.json(data);
-}
+export async function getProducts(req,res){
+
+    // Pide los productos al servicio y los devuelve como JSON.
+    const products  = await getExternalProducts();
+    res.json(products);
+
+}; 
