@@ -1,9 +1,10 @@
-//Direccionamos la petición al controlador
-import express from  'express';
-import {getMessageControl} from '../controllers/products.controller.js';
+import express from 'express';
+import {getProducts, getProductsid} from '../controllers/products.controller.js';
 
-const routes = express.Router();
+const router = express.Router();
 
-routes.get("/external", getMessageControl);
-
-export default routes;
+// Expone el endpoint que obtiene productos desde la fuente externa.
+router.get('/external',getProducts);
+router.get('/', getProducts);
+router.get('/:id',getProductsid);
+export default router;
