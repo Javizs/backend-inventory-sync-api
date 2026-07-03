@@ -1,9 +1,38 @@
-import {getExternalProducts} from '../services/products.services.js';
+import { getExternalProducts, getExternalProductid } from '../services/products.services.js';
 
-export async function getProducts(req,res){
+export async function getProducts(req, res, next) {
+  try {
+    const products = await getExternalProducts();
+    res.status(200).json({
+      ok: true,
+      data: products,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
-    // Pide los productos al servicio y los devuelve como JSON.
-    const products  = await getExternalProducts();
-    res.json(products);
+export async function getProductsid(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) {
+      const error = new Error('El id debe ser numero');
+      error.status = 400;
+      return next(error);
+    }
 
-}; 
+    const product = await getExternalProductid(id);
+    if (!product) {
+      const error = new Error('Producto no encontrado');
+      error.status = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      ok: true,
+      data: product,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
