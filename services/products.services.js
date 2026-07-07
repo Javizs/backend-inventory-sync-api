@@ -1,26 +1,39 @@
+import { pool } from '../config/db.js';
+
 export async function getExternalProducts() {
-  // Consulta la API externa de productos.
-  const response = await fetch('https://dummyjson.com/products');
-  if (!response.ok) {
-    throw new Error('Fallo al obtener productos');
+  const [rows] = await pool.execute(
+    'SELECT external_id AS externalID, name, price, stock, category FROM products WHERE active = TRUE'
+  );
+
+  return rows;
+}
+
+export async function saveExternalProducts(products) {
+  for (const product of products) {
+    await pool.execute(
+      `INSERT INTO products (external_id, name, price, stock, category)
+       VALUES (?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         name = VALUES(name),
+         price = VALUES(price),
+         stock = VALUES(stock),
+         category = VALUES(category)`,
+      [
+        product.externalID,
+        product.name,
+        product.price,
+        product.stock,
+        product.category,
+      ]
+    );
   }
-
-  const data = await response.json();
-
-  // Adapta la respuesta al formato que usa esta aplicacion.
-  const products = data.products.map((product) => ({
-    externalID: product.id,
-    name: product.title,
-    price: product.price,
-    stock: product.stock,
-    category: product.category,
-  }));
-
-  return products;
 }
 
 export async function getExternalProductid(id) {
-  const products = await getExternalProducts();
-  const product = products.find((product) => product.externalID === id);
-  return product;
+  const [rows] = await pool.execute(
+    'SELECT external_id AS externalID, name, price, stock, category FROM products WHERE external_id = ? AND active = TRUE LIMIT 1',
+    [id]
+  );
+
+  return rows[0];
 }
