@@ -1,4 +1,4 @@
-import { getExternalProducts, getExternalProductid } from '../services/products.services.js';
+import { getExternalProducts, getExternalProductid,importExternalProducts} from '../services/products.services.js';
 
 export async function getProducts(req, res, next) {
   try {
@@ -33,6 +33,19 @@ export async function getProductsid(req, res, next) {
       data: product,
     });
   } catch (error) {
+    next(error);
+  }
+}
+export async function importProducts(req,res,next){
+  try{
+    const result = await importExternalProducts();
+    res.status(201).json({
+      ok:true,
+      message:'Correct Import',
+      data:result,
+    })
+
+  }catch(error){
     next(error);
   }
 }

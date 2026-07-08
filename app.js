@@ -1,18 +1,28 @@
+import 'dotenv/config';
 import express from 'express';
 
 import router from './routes/products.routes.js';
+import { testDbConnection } from './config/db.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 
 const app = express();
+const port = Number(process.env.PORT || 3000);
 
-// Monta las rutas de productos bajo el prefijo principal de la API.
 app.use('/api/products', router);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Inicia el servidor HTTP en el puerto 3000.
-app.listen(3000, () => {
-  console.log('Servidor levantado en http://localhost:3000');
+async function startServer() {
+  await testDbConnection();
+
+  app.listen(port, () => {
+    console.log(`Servidor levantado en http://localhost:${port}`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error('No se pudo iniciar la aplicacion', error);
+  process.exit(1);
 });
