@@ -105,11 +105,46 @@ export async function saveExternalProducts(products) {
 
 export async function getExternalProductid(id) {
   const [rows] = await pool.execute(
-    'SELECT external_id AS externalID, name, price, stock, category FROM products WHERE external_id = ? AND active = TRUE LIMIT 1',
+    'SELECT id, external_id AS externalID, name, price, stock, category FROM products WHERE id = ? AND active = TRUE LIMIT 1',
     [id]
   );
 
   return rows[0];
 }
 
+export async function createLocalProduct(product) {
+  const [result] = await pool.execute(
+    'INSERT INTO products (name, price, stock, category) VALUES (?, ?, ?, ?)',
+    [
+      product.name,
+      product.price,
+      product.stock,
+      product.category,
+    ]
+  );
 
+  return result.insertId;
+}
+export async function updateLocalProduct(id, product) {
+  const [result] = await pool.execute(
+    'UPDATE products SET name = ?, price = ?, stock = ?, category = ? WHERE id = ? AND active = TRUE',
+    [
+      product.name,
+      product.price,
+      product.stock,
+      product.category,
+      id,
+    ]
+  );
+
+  return result.affectedRows;
+}
+
+export async function deleteLocalProduct(id) {
+  const [result] = await pool.execute(
+    'UPDATE products SET active = FALSE WHERE id = ? AND active = TRUE',
+    [id]
+  );
+
+  return result.affectedRows;
+}
