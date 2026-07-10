@@ -9,6 +9,7 @@ import { errorHandler } from './middlewares/errorHandler.js';
 const app = express();
 const port = Number(process.env.PORT || 3000);
 
+app.use(express.json());
 app.use('/api/products', router);
 
 app.use(notFoundHandler);
