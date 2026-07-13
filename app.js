@@ -6,6 +6,7 @@ import clientrouter from './routes/client.routes.js';
 import { testDbConnection } from './config/db.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import ordersRouter from './routes/orders.routes.js';
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -13,6 +14,7 @@ const port = Number(process.env.PORT || 3000);
 app.use(express.json());
 app.use('/api/products', router);
 app.use('/api/clients', clientrouter);
+app.use('/api/orders', ordersRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
