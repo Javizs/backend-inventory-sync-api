@@ -15,9 +15,7 @@ export async function registerOrder(req,res,next){
         }))
           const hasInvalidItem = formattedItems.some(
       (item) =>
-        Number.isNaN(item.productId) ||
-        Number.isNaN(item.quantity) ||
-        item.quantity <= 0
+        Number.isNaN(item.productId) || Number.isNaN(item.quantity) || item.quantity <= 0
     );
 
     if (hasInvalidItem) {
@@ -26,6 +24,13 @@ export async function registerOrder(req,res,next){
       return next(error);
     }
 
+const productIds = formattedItems.map((item) => item.productId);
+const hasDuplicatedProducts = new Set(productsIds).size !== productsIds.length;
+if (hasDuplicatedProducts){
+  const error = new Error('No se permiten duplicados')
+  error.status = 400;
+  return next(error);
+}
     const order = await createOrder({
       customerId: customerIdNumber,
       items: formattedItems,
