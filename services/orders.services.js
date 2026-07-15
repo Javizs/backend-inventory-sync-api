@@ -36,6 +36,11 @@ export async function createOrder({ customerId, items }) {
 
       const product = products[0];
 
+      if(product.stock < item.quantity){
+  const error = new Error(`Stock insuficiente para el producto ${item.productId}`);
+        error.status = 400;
+        throw error; 
+}
       if (item.quantity <= 0) {
         const error = new Error('La cantidad debe ser mayor que 0');
         error.status = 400;
@@ -77,6 +82,19 @@ export async function createOrder({ customerId, items }) {
           item.subtotal,
         ]
       );
+
+      const [stockResult] = await connection.execute(
+        `UPDATE products
+         SET stock = stock - ?
+         WHERE id = ? AND stock >= ?`,
+        [item.quantity, item.productId, item.quantity]
+      );
+
+      if (stockResult.affectedRows === 0) {
+        const error = new Error(`Stock insuficiente para el producto ${item.productId}`);
+        error.status = 409;
+        throw error;
+      }
     }
 
     await connection.commit();
