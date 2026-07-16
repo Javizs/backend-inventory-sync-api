@@ -1,4 +1,4 @@
-import { createOrder } from '../services/orders.services.js';
+import { createOrder, findOrderById } from '../services/orders.services.js';
 
 export async function registerOrder(req,res,next){
     try{
@@ -25,7 +25,7 @@ export async function registerOrder(req,res,next){
     }
 
 const productIds = formattedItems.map((item) => item.productId);
-const hasDuplicatedProducts = new Set(productsIds).size !== productsIds.length;
+const hasDuplicatedProducts = new Set(productIds).size !== productIds.length;
 if (hasDuplicatedProducts){
   const error = new Error('No se permiten duplicados')
   error.status = 400;
@@ -43,5 +43,29 @@ if (hasDuplicatedProducts){
     });
     }catch (error) {
     next(error);
+  }
+}
+
+export async function getOrderById(req,res,next){
+  try{
+  const id = Number(req.params.id);
+  if(Number.isNaN(id)){
+    const error = new Error('No se encuentra')
+    error.status = 400;
+    return next(error);
+  }
+  const FindId =  await findOrderById(id);
+  if(FindId === null){
+    const  error = new Error('NotFound');
+    error.status = 404;
+    return next(error);
+
+  }else{
+    res.status(200).json(
+{ ok: true,
+  data:FindId}    )
+  }
+  }catch(error){
+    next (error);
   }
 }
