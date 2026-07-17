@@ -160,3 +160,36 @@ return {
   })),
 };
 }
+export async function updateOrderStatusById(id, newStatus) {
+  const [orders] = await pool.execute(
+    'SELECT id, status FROM orders WHERE id = ? LIMIT 1',
+    [id]
+  );
+
+  if (orders.length === 0) {
+    const error = new Error('Pedido no encontrado');
+    error.status = 404;
+    throw error;
+  }
+
+  const currentStatus = orders[0].status;
+  const allowedTransitions = {
+    pendiente: ['pagado', 'cancelado'],
+    pagado: ['enviado', 'cancelado'],
+    enviado: [],
+    cancelado: [],
+  };
+
+  if (!allowedTransitions[currentStatus]?.includes(newStatus)) {
+    const error = new Error('Transicion de estado no permitida');
+    error.status = 409;
+    throw error;
+  }
+
+  await pool.execute(
+    'UPDATE orders SET status = ? WHERE id = ?',
+    [newStatus, id]
+  );
+
+  return findOrderById(id);
+}
