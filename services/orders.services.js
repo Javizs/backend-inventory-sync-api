@@ -112,3 +112,51 @@ export async function createOrder({ customerId, items }) {
     connection.release();
   }
 }
+export async function findOrderById(id){
+  const [rowsId] = await pool.execute(
+     `SELECT
+  o.id AS orderId,
+  o.status,
+  o.total,
+  o.created_at AS createdAt,
+  c.id AS customerId,
+  c.name AS customerName,
+  c.email AS customerEmail,
+  c.phone AS customerPhone,
+  p.id AS productId,
+  p.name AS productName,
+  oi.quantity,
+  oi.unit_price AS unitPrice,
+  oi.subtotal
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON oi.product_id = p.id
+WHERE o.id = ?`,
+    [id]
+  );
+  if(rowsId.length === 0){
+    return null;
+  }
+  const firstRow = rowsId[0];
+
+return {
+  id: firstRow.orderId,
+  status: firstRow.status,
+  total: Number(firstRow.total),
+  createdAt: firstRow.createdAt,
+  customer: {
+    id: firstRow.customerId,
+    name: firstRow.customerName,
+    email: firstRow.customerEmail,
+    phone: firstRow.customerPhone,
+  },
+  items: rowsId.map((row) => ({
+    productId: row.productId,
+    name: row.productName,
+    quantity: row.quantity,
+    unitPrice: Number(row.unitPrice),
+    subtotal: Number(row.subtotal),
+  })),
+};
+}
