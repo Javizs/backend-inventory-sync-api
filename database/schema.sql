@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS orders (
     id INT NOT NULL AUTO_INCREMENT,
     customer_id INT NOT NULL,
-    status ENUM('pendiente', 'preparandose', 'enviado', 'entregado') DEFAULT 'pendiente',
+    status ENUM('pendiente', 'pagado', 'enviado', 'cancelado') DEFAULT 'pendiente',
     total DECIMAL(10,2) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

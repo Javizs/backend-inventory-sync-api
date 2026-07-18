@@ -1,4 +1,4 @@
-import { createOrder, findOrderById } from '../services/orders.services.js';
+import { createOrder, findOrderById, updateOrderStatusById } from '../services/orders.services.js';
 
 export async function registerOrder(req,res,next){
     try{
@@ -67,5 +67,35 @@ export async function getOrderById(req,res,next){
   }
   }catch(error){
     next (error);
+  }
+}
+export async function updateOrderStatus(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    const { status } = req.body;
+
+    if (Number.isNaN(id)) {
+      const error = new Error('El id debe ser numero');
+      error.status = 400;
+      return next(error);
+    }
+
+    const validStatuses = ['pendiente', 'pagado', 'enviado', 'cancelado'];
+
+    if (!status || !validStatuses.includes(status)) {
+      const error = new Error('Estado de pedido invalido');
+      error.status = 400;
+      return next(error);
+    }
+
+    const order = await updateOrderStatusById(id, status);
+
+    res.status(200).json({
+      ok: true,
+      message: 'Estado del pedido actualizado correctamente',
+      data: order,
+    });
+  } catch (error) {
+    next(error);
   }
 }
