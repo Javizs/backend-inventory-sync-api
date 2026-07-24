@@ -6,6 +6,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  getDummyProducts
 } from '../controllers/products.controller.js';
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router.get('/external',getProducts);
 router.get('/', getProducts);
 router.post('/import',importProducts);
 router.post('/', createProduct);
+router.get('/dummyjson',getDummyProducts);
 router.get('/:id',getProductsid);
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);

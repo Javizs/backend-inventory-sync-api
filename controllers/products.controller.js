@@ -5,6 +5,7 @@ import {
   createLocalProduct,
   updateLocalProduct,
   deleteLocalProduct,
+  getExternalDummyProducts,
 } from '../services/products.services.js';
 
 export async function getProducts(req, res, next) {
@@ -159,4 +160,25 @@ export async function deleteProduct(req, res, next) {
   } catch (error) {
     next(error);
   }
+}
+export async function getDummyProducts(req,res,next){
+  try{
+    const products = await getExternalDummyProducts();
+    if(!products || products.length === 0){
+      const error = new Error('Productos no devueltos');
+      error.status = 400;
+      return next(error);
+    }
+  res.status(200).json({
+     ok: true,
+  count: products.length,
+  message: 'Productos recibidos',
+  products,
+
+    
+  })
+  }catch(error){
+    next(error);
+  }
+
 }
