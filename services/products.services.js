@@ -10,7 +10,7 @@ async function fetchExternalProducts(){
     throw error;
   }
   const data = await response.json();
-  return data.products;
+  return data?.products?? [];
 }
 function transformExternalProduct(product){
   return{
@@ -147,4 +147,22 @@ export async function deleteLocalProduct(id) {
   );
 
   return result.affectedRows;
+}
+
+export async function getExternalDummyProducts(){
+   const products = await fetchExternalProducts();
+
+  if (!products || products.length === 0) {
+    return [];
+  }
+  const jsonproducts = products.map((product) => {
+    const { id, title: name, price, stock } = product;
+     return{
+      id,
+      name,
+      price,
+      available: stock > 0,
+     }
+  });
+  return jsonproducts;
 }
