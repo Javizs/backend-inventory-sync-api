@@ -6,6 +6,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+   searchProducts,
   getDummyProducts
 } from '../controllers/products.controller.js';
 
@@ -17,6 +18,7 @@ router.get('/', getProducts);
 router.post('/import',importProducts);
 router.post('/', createProduct);
 router.get('/dummyjson',getDummyProducts);
+router.get('/search', searchProducts);
 router.get('/:id',getProductsid);
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
