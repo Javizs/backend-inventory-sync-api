@@ -2,10 +2,11 @@ import {
   getExternalProducts,
   getExternalProductid,
   importExternalProducts,
-  createLocalProduct,
   updateLocalProduct,
   deleteLocalProduct,
   getExternalDummyProducts,
+  searchProductsByCategory,
+  createProductWithValidation,
 } from '../services/products.services.js';
 
 export async function getProducts(req, res, next) {
@@ -22,19 +23,7 @@ export async function getProducts(req, res, next) {
 
 export async function getProductsid(req, res, next) {
   try {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id)) {
-      const error = new Error('El id debe ser numero');
-      error.status = 400;
-      return next(error);
-    }
-
-    const product = await getExternalProductid(id);
-    if (!product) {
-      const error = new Error('Producto no encontrado');
-      error.status = 404;
-      return next(error);
-    }
+    const product = await getExternalProductid(req.params.id);
 
     res.status(200).json({
       ok: true,
@@ -61,23 +50,7 @@ export async function importProducts(req,res,next){
 //Funcion controller de create
 export async function createProduct(req, res, next) {
   try {
-    const { name, price, stock, category = 'local' } = req.body;
-
-    const priceNumber = Number(price);
-    const stockNumber = Number(stock);
-
-    if (!name || Number.isNaN(priceNumber) || priceNumber <= 0 || Number.isNaN(stockNumber) || stockNumber < 0) {
-      const error = new Error('Datos de producto invalidos');
-      error.status = 400;
-      return next(error);
-    }
-
-    const productId = await createLocalProduct({
-      name,
-      price: priceNumber,
-      stock: stockNumber,
-      category,
-    });
+    const productId = await createProductWithValidation(req.body);
 
     res.status(201).json({
       ok: true,
@@ -181,4 +154,20 @@ export async function getDummyProducts(req,res,next){
     next(error);
   }
 
+}
+
+export async function searchProducts(req, res, next) {
+  try {
+    const { category } = req.query;
+
+    const products = await searchProductsByCategory(category);
+
+    res.status(200).json({
+      ok: true,
+      count: products.length,
+      products,
+    });
+  } catch (error) {
+    next(error);
+  }
 }

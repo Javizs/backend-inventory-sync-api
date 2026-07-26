@@ -1,4 +1,11 @@
 import { pool } from '../config/db.js';
+import {
+  findAllProducts,
+  findProductsByCategory,
+  findProductById,
+} from '../repositories/products.repository.js';
+import { AppError } from '../errors/AppError.js';
+
 const EXTERNAL_PRODUCTS_URL = 'https://dummyjson.com/products';
 
 //FUNCION QUE PIDE DATOS EXTERNOS
@@ -75,11 +82,7 @@ export async function importExternalProducts(){
   };
 }
 export async function getExternalProducts() {
-  const [rows] = await pool.execute(
-    'SELECT external_id AS externalID, name, price, stock, category FROM products WHERE active = TRUE'
-  );
-
-  return rows;
+  return findAllProducts();
 }
 
 export async function saveExternalProducts(products) {
@@ -104,12 +107,19 @@ export async function saveExternalProducts(products) {
 }
 
 export async function getExternalProductid(id) {
-  const [rows] = await pool.execute(
-    'SELECT id, external_id AS externalID, name, price, stock, category FROM products WHERE id = ? AND active = TRUE LIMIT 1',
-    [id]
-  );
+  const productId = Number(id);
 
-  return rows[0];
+  if (Number.isNaN(productId)) {
+    throw new AppError('El id debe ser numero', 400);
+  }
+
+  const product = await findProductById(productId);
+
+  if (!product) {
+    throw new AppError('Producto no encontrado', 404);
+  }
+
+  return product;
 }
 
 export async function createLocalProduct(product) {
@@ -165,4 +175,36 @@ export async function getExternalDummyProducts(){
      }
   });
   return jsonproducts;
+}
+
+export async function searchProductsByCategory(category) {
+  if (typeof category !== 'string' || category.trim() === '') {
+    throw new AppError('La categoria es obligatoria', 400);
+  }
+
+  return findProductsByCategory(category.trim());
+}
+
+export async function createProductWithValidation(product) {
+  const { name, price, stock, category = 'local' } = product || {};
+
+  const priceNumber = Number(price);
+  const stockNumber = Number(stock);
+
+  if (
+    !name ||
+    Number.isNaN(priceNumber) ||
+    priceNumber <= 0 ||
+    Number.isNaN(stockNumber) ||
+    stockNumber < 0
+  ) {
+    throw new AppError('Datos de producto invalidos', 400);
+  }
+
+  return createLocalProduct({
+    name,
+    price: priceNumber,
+    stock: stockNumber,
+    category,
+  });
 }
